@@ -1,0 +1,15 @@
+{
+  "name": "MMM-WetterOnline",
+  "version": "1.0.0",
+  "description": "MagicMirror module to display WetterOnline weather data.",
+  "author": "Bog",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bogenpirat/MMM-WetterOnline.git"
+  },
+  "main": "MMM-WetterOnline.js"
+  "dependencies": {
+    "node-html-parser": "^1.1.16"
+  }
+}
