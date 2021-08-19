@@ -10,6 +10,6 @@
   },
   "main": "MMM-WetterOnline.js",
   "dependencies": {
-    "node-html-parser": "^1.1.16"
+    "cheerio": "^1.0.0-rc.10"
   }
 }

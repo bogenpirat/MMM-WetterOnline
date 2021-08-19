@@ -1,6 +1,6 @@
 const http = require('https');
 const url = require('url');
-const nhp = require('node-html-parser');
+const cheerio = require('cheerio');
 const NodeHelper = require('node_helper');
 
 module.exports = NodeHelper.create({
@@ -13,7 +13,7 @@ module.exports = NodeHelper.create({
 
 	
 	updateWOTrend: function(city, userAgent) {
-		const WO_TREND_URL = url.parse("https://www.wetteronline.de/wettertrend/" + city);
+		const WO_TREND_URL = url.parse("https://www.wetteronline.de/wetter/" + city);
 		
 		var helper = this;
 		var opts = this.makeOpts(WO_TREND_URL, userAgent);
@@ -25,71 +25,68 @@ module.exports = NodeHelper.create({
 			}).on('end', function() {
 				var buffer = Buffer.concat(data);
 				var websiteCode = buffer.toString();
-				
-				const root = nhp.parse(websiteCode, {script: true, style: false});
-				var currTemp = root.querySelector("#current-temp").text.replace(/[^\d\-]*/g, '').trim();
-				
-				var currConditions = JSON.parse(root.querySelector("#current-weather").attributes['data-tt-args']);
-				//console.log("conditions: " + Object.keys(currConditions).length);
-				
-				var hourlyEls = root.querySelector("#hourly-elements").childNodes;
+            
+				// CURRENT CONDITIONS
+	
+				const $ = cheerio.load(websiteCode);
+				var currTemp = $("#current-temp").text().replace(/[^\d\-]*/g, '').trim();
+
+				var currConditions = {
+					symbol_text: $("#ambient-station-weather table tr").eq(0).find("td").eq(1).contents().filter(function() {
+							return this.type === 'text';
+						}).text().trim(),
+					wind_speed_text: $("#ambient-station-weather table tr").eq(0).find("span.wind").text().trim(),
+					wind_speed_kmh: parseFloat($("#ambient-station-weather table tr").eq(0).find("span.gust").text().replace(/[^\d\-\.,]*/g, '').trim()) || 0,
+				};
+	
+				// HOURLY FORECAST
+	
+				var hourlyEls = $(".hour");
 				var hourlies = [];
-				for(var i = 0; i < hourlyEls.length; i++) {
-					if(hourlyEls[i].nodeType == 1 && hourlyEls[i].attributes && hourlyEls[i].attributes['data-tt-args']) {
-						var hJson = JSON.parse(hourlyEls[i].attributes['data-tt-args']);
+				hourlyEls.each(function(i, hourlyEl) {
+					if(hourlyEl.attribs['data-wo-details']) {
+						var hJson = JSON.parse(hourlyEl.attribs['data-wo-details']);
 						hourlies.push(hJson);
-						var testImg = hourlyEls[i].querySelector("img");
-						if(testImg && testImg.attributes && testImg.attributes['src']) {
-							hourliesSymbolUrl = testImg.attributes['src'].replace(/(.*\/)[^\/]*/, '$1');
+						var testImg = $("img", hourlyEl).get(0);
+						if(testImg.attribs['src']) {
+							hourliesSymbolUrl = testImg.attribs['src'].replace(/(.*\/)[^\/]*/, '$1');
 						}
 					}
-				}
-				//console.log("hourlies: " + hourlies.length);
-				
-				var geo = {};
-				var toks = websiteCode.split(/WO\.geo = /);
-				if(toks.length == 2) {
-					toks = toks[1].split(/};/);
-					geo = JSON.parse(helper.fixJson(toks[0] + '}'));
-				}
-				//console.log("geo: " + Object.keys(geo).length);
+				});
+            
+				// DAILY FORECAST
 				
 				var dailies = [];
-				var dailyEls = root.querySelector("#daily_weather_wrapper").childNodes;
-				for(var i = 0; i < dailyEls.length; i++) {
-					if(dailyEls[i].nodeType == 1 && dailyEls[i].attributes && dailyEls[i].attributes['data-tt-args']) {
-						var dJson = JSON.parse(dailyEls[i].attributes['data-tt-args']);
+				var dailyEls = $(".day");
+				dailyEls.each(function(i, dailyEl) {
+					if(dailyEl.attribs['data-wo-details']) {
+						var dJson = JSON.parse(dailyEl.attribs['data-wo-details']);
 						
-						var high = dailyEls[i].querySelector(".daily.temperatures").childNodes[1].querySelector(".temp").text.replace(/[^\d\-]*/g, '').trim();
-						var low = dailyEls[i].querySelector(".daily.temperatures").childNodes[3].querySelector(".temp").text.replace(/[^\d\-]*/g, '').trim();
+						var high = $(".max-temp", dailyEl).text().replace(/[^\d\-]*/g, '').trim();
+						var low = $(".min-temp", dailyEl).text().replace(/[^\d\-]*/g, '').trim();
 						dJson.high = parseInt(high);
 						dJson.low = parseInt(low);
 						
-						var suntime = dailyEls[i].querySelector(".suntimes").text.replace(/[^\d]*/g, '').trim();
-						var pop = dailyEls[i].querySelector(".pop").text.replace(/[^\d]*/g, '').trim(); // probability of precipitation
-						dJson.suntime = parseInt(suntime);
-						dJson.pop = parseInt(pop);
-						
 						dailies.push(dJson);
-						var testImg = dailyEls[i].querySelector("img");
-						if(testImg && testImg.attributes && testImg.attributes['src']) {
-							dailiesSymbolUrl = testImg.attributes['src'].replace(/(.*\/)[^\/]*/, '$1');
+						var testImg = $("img", dailyEl).get(0);
+						if(testImg.attribs['src']) {
+							dailiesSymbolUrl = testImg.attribs['src'].replace(/(.*\/)[^\/]*/, '$1');
 						}
 					}
-				}
-				//console.log("dailies: " + dailies.length);
-				
-				helper.sendSocketNotification("WETTERONLINE_RESULTS", {
-					currentTemp: currTemp, 
-					currConditions: currConditions, 
-					geo: geo, 
+				});
+            
+				// SIGNAL DATA
+				const notif = {
+					currentTemp: currTemp,
+					currConditions: currConditions,
 					hourlies: hourlies,
 					dailies: dailies,
 					symbolUrls: {
 						dailies: dailiesSymbolUrl,
 						hourlies: hourliesSymbolUrl
 					}
-				});
+				};
+				helper.sendSocketNotification("WETTERONLINE_RESULTS", notif);
 			});
 		});
 
@@ -116,11 +113,5 @@ module.exports = NodeHelper.create({
 					console.log(err);
 				}
 		});
-	},
-
-	fixJson: function(inText) {
-		var outText = inText.replace(/([_a-zA-Z0-9]+)\s*:/g, '"$1":');
-		outText = outText.replace(/btoa\("[^"]*"\)/g, '"' + Buffer.from("$1").toString('base64') + '"');
-		return outText;
 	}
 });
