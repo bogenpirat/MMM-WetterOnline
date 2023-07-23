@@ -44,7 +44,7 @@ Module.register("MMM-WetterOnline", {
 		if(Object.keys(this.weatherData).length > 0) {
 			var currentWrapper = document.createElement("div");
 			currentWrapper.classList.add("weather");
-			currentWrapper.insertAdjacentHTML("beforeend", '<span class="logo-container"><img src="' + this.weatherData.symbolUrls.hourlies + this.weatherData.hourlies[0].symbol + '.svg" class="blacknwhite" /> <span class="currentTemp">' + this.weatherData.currentTemp + '&deg;C</span></span>');
+			currentWrapper.insertAdjacentHTML("beforeend", '<span class="logo-container"><img src="' + this.weatherData.symbolUrls.hourlies + this.weatherData.hourlies[0].symbol + '.svg" class="blacknwhite" width="64" /> <span class="currentTemp">' + this.weatherData.currentTemp + '&deg;C</span></span>');
 			currentWrapper.insertAdjacentHTML("beforeend", '<br />');
 			currentWrapper.insertAdjacentHTML("beforeend", this.weatherData.currConditions.symbol_text);
 			currentWrapper.insertAdjacentHTML("beforeend", '<br />');
