@@ -77,7 +77,7 @@ All options are optional so the module works out of the box.
 | `width`                | Width of the displayed module data. <br><br>**Type:** `HTML width attribute`<br>**Default:** `400px`
 | `daysTrend`            | Amount of upcoming days to display in the weather trend. This goes up to 16, where the first is the current day, the second is tomorrow and so on.<br><br>**Type:** `Number`<br>**Default:** `4`
 | `updateIntervalMins`   | Time to wait before refreshing weather data in minutes.<br><br>**Type:** `Number`<br>**Default:** `5`
-| `userAgent`            | User-Agent to use for requests to the site. This module so far only works with mobile UAs.<br><br>**Type:** `String`<br>**Default:** see [MMM-WetterOnline.js](MMM-WetterOnline.js)
+| `userAgent`            | User-Agent to use for requests to the site. Mobile UAs will not work.<br><br>**Type:** `String`<br>**Default:** see [MMM-WetterOnline.js](MMM-WetterOnline.js)
 
 ## Developer notes
 

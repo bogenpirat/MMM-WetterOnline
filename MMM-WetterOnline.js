@@ -13,7 +13,7 @@ Module.register("MMM-WetterOnline", {
 		width: "400px",
 		daysTrend: 4,
 		updateIntervalMins: 5,
-		userAgent: "Mozilla/5.0 (Linux; Android 9; Pixel Build/PQ3A.190705.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/75.0.3770.101 Mobile Safari/537.36"
+		userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
 	},
 	
 	weatherData: {},
