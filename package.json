@@ -8,8 +8,5 @@
     "type": "git",
     "url": "git+https://github.com/bogenpirat/MMM-WetterOnline.git"
   },
-  "main": "MMM-WetterOnline.js",
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.10"
-  }
+  "main": "MMM-WetterOnline.js"
 }

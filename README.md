@@ -16,16 +16,6 @@ Clone this module from Github
 git clone https://github.com/bogenpirat/MMM-WetterOnline.git
 ```
 
-Switch to newly created module folder
-```
-cd MMM-WetterOnline/
-```
-
-Install dependencies
-```
-npm install
-```
-
 After adding this module to your config (see below) restart your MagicMirror.
 
 ## Update the module
@@ -42,13 +32,7 @@ Pull changes from Github
 git pull
 ```
 
-Install new dependencies
-
-```
-npm install
-```
-
-Since this repository ignores the automatically generated ``package-lock.json``, pulling changes should always work. If not, try to reset your module with ``git reset --hard`` before pulling new changes.
+Pulling changes should always work. If not, try to reset your module with ``git reset --hard`` before pulling new changes.
 
 ## Using the module
 

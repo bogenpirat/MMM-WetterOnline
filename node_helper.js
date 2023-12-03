@@ -1,6 +1,5 @@
 const http = require('https');
 const URL = require('url');
-const cheerio = require('cheerio');
 const NodeHelper = require('node_helper');
 
 module.exports = NodeHelper.create({
