@@ -47,7 +47,7 @@ module.exports = NodeHelper.create({
   extractEvent: function (dailyData, hourlyData, body) {
     // extract current temp
     let currentTempMatch = body.match(
-      /<div id="nowcast-card-temperature"[^>]*>.*?<div class="value">(\d+)<\/div>/ms
+      /<div id="nowcast-card-temperature"[\s\S]*?<div class="value">(-?\d+)<\/div>/
     );
     let currTemp = currentTempMatch ? currentTempMatch[1] : null;
 
