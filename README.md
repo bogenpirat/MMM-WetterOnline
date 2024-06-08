@@ -7,23 +7,15 @@ This is a module for [MagicMirror²](https://github.com/MichMich/MagicMirror/). 
 ## Install the module
 
 Go to modules folder
-```
+
+```bash
 cd modules/
 ```
 
 Clone this module from Github
-```
-git clone https://github.com/bogenpirat/MMM-WetterOnline.git
-```
 
-Switch to newly created module folder
-```
-cd MMM-WetterOnline/
-```
-
-Install dependencies
-```
-npm install
+```bash
+git clone https://github.com/bogenpirat/MMM-WetterOnline
 ```
 
 After adding this module to your config (see below) restart your MagicMirror.
@@ -32,39 +24,35 @@ After adding this module to your config (see below) restart your MagicMirror.
 
 Go to modules folder
 
-```
+```bash
 cd modules/MMM-WetterOnline
 ```
 
 Pull changes from Github
 
-```
+```bash
 git pull
 ```
 
-Install new dependencies
-
-```
-npm install
-```
-
-Since this repository ignores the automatically generated ``package-lock.json``, pulling changes should always work. If not, try to reset your module with ``git reset --hard`` before pulling new changes.
+Pulling changes should always work. If not, try to reset your module with ``git reset --hard`` before pulling new changes.
 
 ## Using the module
 
 To use this module, add the following configuration block to the modules array in the `config/config.js` file:
+
 ```js
-var config = {
     modules: [
         {
             module: 'MMM-WetterOnline',
             position: "top_right",
             config: {
-                // See below for configurable options
+                city: "berlin",
+                daysTrend: "3"
+                // See below for for more configurable options
             }
-        }
+        },
+        ...
     ]
-}
 ```
 
 ## Configuration options
@@ -82,7 +70,6 @@ All options are optional so the module works out of the box.
 ## Developer notes
 
 This was written by a node/MM first timer. Expect ugly design choices, terrible use of JavaScript/CSS and feel free to create pull requests with improvements.
-
 
 ## License: GPL-3.0
 
