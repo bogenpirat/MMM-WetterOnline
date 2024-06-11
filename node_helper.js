@@ -1,3 +1,4 @@
+const Log = require("logger");
 const NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
@@ -9,33 +10,34 @@ module.exports = NodeHelper.create({
 
 	async updateWOTrend (city, userAgent) {
 		let url = `https://www.wetteronline.de/wetter/${city}`;
-        let body = await this.getUrl(url, userAgent);
-        let gid = this.findGid(body);
+		let body = await this.getUrl(url, userAgent);
+		let gid = this.findGid(city, body);
 
-        const WO_DAILY_URL = `https://api-app.wetteronline.de/app/weather/forecast?av=2&mv=13&c=d2ViOmFxcnhwWDR3ZWJDSlRuWeb=&location_id=${gid}&timezone=${process.env.TZ}`;
-        let daily_promise = await this.getUrl(WO_DAILY_URL, userAgent);
-        let dailyData = JSON.parse(await daily_promise);
+		if(gid) {
+			const WO_DAILY_URL = `https://api-app.wetteronline.de/app/weather/forecast?av=2&mv=13&c=d2ViOmFxcnhwWDR3ZWJDSlRuWeb=&location_id=${gid}&timezone=${process.env.TZ}`;
+			let daily_promise = await this.getUrl(WO_DAILY_URL, userAgent);
+			let dailyData = JSON.parse(await daily_promise);
 
-        const WO_HOURLY_URL = `https://api-app.wetteronline.de/app/weather/hourcast?av=2&mv=13&c=d2ViOmFxcnhwWDR3ZWJDSlRuWeb=&location_id=${gid}&timezone=${process.env.TZ}`;
-        let hourly_promise = await this.getUrl(WO_HOURLY_URL, userAgent);
-        let hourlyData = JSON.parse(await hourly_promise);
+			const WO_HOURLY_URL = `https://api-app.wetteronline.de/app/weather/hourcast?av=2&mv=13&c=d2ViOmFxcnhwWDR3ZWJDSlRuWeb=&location_id=${gid}&timezone=${process.env.TZ}`;
+			let hourly_promise = await this.getUrl(WO_HOURLY_URL, userAgent);
+			let hourlyData = JSON.parse(await hourly_promise);
 
-		let event = this.extractEvent(dailyData, hourlyData, body);
-		
-		this.getHelper().sendSocketNotification("WETTERONLINE_RESULTS", event);
+			let event = this.extractEvent(dailyData, hourlyData, body);
+			
+			this.getHelper().sendSocketNotification("WETTERONLINE_RESULTS", event);
+		}
 	},
 
-	findGid (body) {
-		const exp = /WO\.geo = (\{[^\}]+\})/m;
+	findGid (city, body) {
+		const exp = /gid : "([^"]+)"/s;
+		const gid = body.match(exp);
 	
-		const match = body.match(exp);
-	
-		if(match) {
-			let obj = this.parseInlineJson(match[1]);
-			return obj["gid"];
+		if(gid) {
+			Log.info(`MMM-WetterOnline: The gid of city "${city}" is ${gid[1]}.`)
+			return gid[1];
+		} else {
+			Log.error(`MMM-WetterOnline: The gid of city "${city}" could not be extracted.`);
 		}
-	
-		throw new Error("city's gid could not be extracted");
 	},
 
 	extractEvent (dailyData, hourlyData, body) {
@@ -74,9 +76,9 @@ module.exports = NodeHelper.create({
 		let currentCondMatch = body.match(/WO\.metadata\.p_city_weather\.nowcastBarMetadata = (\{.+\})$/m);
 		let firstHourlyMatch = body.match(/hourlyForecastElements\.push\((\{[^}]+\})/ms);
 		let currConditions = {
-			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : null,
-			wind_speed_text: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedText"] : null,
-			wind_speed_kmh: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedKmh"] : null
+			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
+			wind_speed_text: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedText"] : "",
+			wind_speed_kmh: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedKmh"] : ""
 		};
 		
 		return {
@@ -88,7 +90,7 @@ module.exports = NodeHelper.create({
 				dailies: dailiesSymbolUrl,
 				hourlies: hourliesSymbolUrl
 			},
-			debug: currentCondMatch[1]
+			debug: currentCondMatch ? currentCondMatch[1] : null
 		};
 	},
 	
@@ -109,6 +111,11 @@ module.exports = NodeHelper.create({
 	},
 
 	parseInlineJson (str) {
-		return eval?.(`"use strict";(${str})`);
+		try {
+			const object = eval?.(`"use strict";(${str})`);
+			return object;
+		} catch (error) {
+			Log.error(`MMM-WetterOnline: Error parsing inline JSON: ${error}`);
+		}
 	}
 });
