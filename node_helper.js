@@ -112,11 +112,6 @@ module.exports = NodeHelper.create({
 	},
 
 	parseInlineJson (str) {
-		try {
-			const object = eval?.(`"use strict";(${str})`);
-			return object;
-		} catch (error) {
-			Log.error(`MMM-WetterOnline: Error parsing inline JSON: ${error}`);
-		}
+		return eval?.(`"use strict";(${str})`);
 	}
 });
