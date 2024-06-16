@@ -30,11 +30,12 @@ module.exports = NodeHelper.create({
 
 	findGid (city, body) {
 		const exp = /gid : "([^"]+)"/s;
-		const gid = body.match(exp);
+		const match = body.match(exp);
 	
-		if(gid) {
-			Log.info(`MMM-WetterOnline: The gid of city "${city}" is ${gid[1]}.`)
-			return gid[1];
+		if(match) {
+			const gid = match[1];
+			Log.info(`MMM-WetterOnline: The gid of city "${city}" is ${gid}.`)
+			return gid;
 		} else {
 			Log.error(`MMM-WetterOnline: The gid of city "${city}" could not be extracted.`);
 		}
