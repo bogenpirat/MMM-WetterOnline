@@ -66,6 +66,8 @@ All options are optional so the module works out of the box.
 | `daysTrend`            | Amount of upcoming days to display in the weather trend. This goes up to 16, where the first is the current day, the second is tomorrow and so on.<br><br>**Type:** `Number`<br>**Default:** `4`
 | `updateIntervalMins`   | Time to wait before refreshing weather data in minutes.<br><br>**Type:** `Number`<br>**Default:** `5`
 | `userAgent`            | User-Agent to use for requests to the site. Mobile UAs will not work.<br><br>**Type:** `String`<br>**Default:** see [MMM-WetterOnline.js](MMM-WetterOnline.js)
+| `showSunHours`         | Shows the absolute duration of sunshine during the day.<br><br>**Type:** `Boolean`<br>**Default:** `false`
+| `showAirPressure`      | Shows the air pressure on this day.<br><br>**Type:** `String`<br>**Default:** `null`<br>**Options:** `(null, hpa, inhg, mmhg)`
 
 ## Developer notes
 
