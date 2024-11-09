@@ -14,8 +14,8 @@ Module.register("MMM-WetterOnline", {
 		daysTrend: 4,
 		updateIntervalMins: 5,
 		userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        showSunHours: false,
-        showAirPressure: null
+		showSunHours: false,
+		showAirPressure: null
 	},
 
 	weatherData: {},
@@ -70,22 +70,22 @@ Module.register("MMM-WetterOnline", {
 					dailyEntriesHtml += "<td class='trendcell'>";
 					dailyEntriesHtml += `<img src="${this.weatherData.symbolUrls.dailies}${this.weatherData.dailies[i].symbol}.svg" class="blacknwhite" width="32" />`;
 					dailyEntriesHtml += "<br />";
-                    if(this.config.showSunHours === true) {
-                        dailyEntriesHtml += `<span class="logo-container"><img class="legend-logo" src="${this.file("assets/sun-svgrepo-com.svg")}" /> ${this.weatherData.dailies[i].sunhours}</span>`;
-                        dailyEntriesHtml += "<br />";
-                    }
+					if(this.config.showSunHours === true) {
+						dailyEntriesHtml += `<span class="logo-container"><img class="legend-logo" src="${this.file("assets/sun-svgrepo-com.svg")}" /> ${this.weatherData.dailies[i].sunhours}</span>`;
+						dailyEntriesHtml += "<br />";
+					}
 					dailyEntriesHtml += `<span class="temp-${this.weatherData.dailies[i].high} logo-container"><img class="legend-logo inverted" src="${this.file("assets/high-temperature.svg")}" /> ${this.weatherData.dailies[i].high}</span>`;
 					dailyEntriesHtml += "<br />";
 					dailyEntriesHtml += `<span class="temp-${this.weatherData.dailies[i].low} logo-container"><img class="legend-logo inverted" src="${this.file("assets/low-temperature.svg")}" />${this.weatherData.dailies[i].low}</span>`;
 					dailyEntriesHtml += "<br />";
-                    if(
-                        this.config.showAirPressure === 'hpa' ||
-                        this.config.showAirPressure === 'inhg' ||
-                        this.config.showAirPressure === 'mmhg'
-                    ) {
-                        dailyEntriesHtml += `<span class="logo-container">${this.weatherData.dailies[i].air_pressure[this.config.showAirPressure]}<span class="mmm-wetteronline-tiny-font">${this.config.showAirPressure}</span></span>`;
-                        dailyEntriesHtml += "<br />";
-                    }
+					if(
+						this.config.showAirPressure === 'hpa' ||
+						this.config.showAirPressure === 'inhg' ||
+						this.config.showAirPressure === 'mmhg'
+					) {
+						dailyEntriesHtml += `<span class="logo-container">${this.weatherData.dailies[i].air_pressure[this.config.showAirPressure]}<span class="mmm-wetteronline-tiny-font">${this.config.showAirPressure}</span></span>`;
+						dailyEntriesHtml += "<br />";
+					}
 					dailyEntriesHtml += `<span class="precipitation logo-container"><img class="legend-logo" src="${this.file("assets/umbrella.svg")}" /> ${this.weatherData.dailies[i].pop}%</span>`;
 					dailyEntriesHtml += "</td>";
 				}

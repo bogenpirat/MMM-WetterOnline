@@ -56,7 +56,12 @@ module.exports = NodeHelper.create({
 			hourlies.push({
 				symbol: hourlyForecast["symbol"],
 				temperature: Math.round(hourlyForecast["temperature"]["air"]),
-				wind_speed_kmh: hourlyForecast["wind"]["speed"]["kilometer_per_hour"]["value"]
+				wind_speed_kmh: hourlyForecast["wind"]["speed"]["kilometer_per_hour"]["value"],
+				air_pressure: {
+					hpa: Math.round(hourlyForecast["air_pressure"]["hpa"]),
+					inhg: (hourlyForecast["air_pressure"]["inhg"]).toFixed(2),
+					mmhg: Math.round(hourlyForecast["air_pressure"]["mmhg"])
+				}
 			});
 		});
 	
@@ -70,12 +75,12 @@ module.exports = NodeHelper.create({
 				pop: Math.round(dailyForecast["precipitation"]["probability"] * 100),
 				// dirty hack - sunrise is usually ON the day (b/c offsets)
 				day_time_label: new Date(dailyForecast["sun"]["rise"]).toLocaleDateString(new Intl.NumberFormat().resolvedOptions().locale, {weekday: "short"}),
-                sunhours: Math.round(dailyForecast["sun"]["duration"]["absolute"]),
-                air_pressure: {
-                    hpa: Math.round(dailyForecast["air_pressure"]["hpa"]),
-                    inhg: (dailyForecast["air_pressure"]["inhg"]).toFixed(2),
-                    mmhg: Math.round(dailyForecast["air_pressure"]["mmhg"])
-                }
+				sunhours: Math.round(dailyForecast["sun"]["duration"]["absolute"]),
+				air_pressure: {
+					hpa: Math.round(dailyForecast["air_pressure"]["hpa"]),
+					inhg: (dailyForecast["air_pressure"]["inhg"]).toFixed(2),
+					mmhg: Math.round(dailyForecast["air_pressure"]["mmhg"])
+				}
 			});
 		});
 		
@@ -85,7 +90,8 @@ module.exports = NodeHelper.create({
 		let currConditions = {
 			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
 			wind_speed_text: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedText"] : "",
-			wind_speed_kmh: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedKmh"] : ""
+			wind_speed_kmh: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedKmh"] : "",
+			air_pressure: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["airPressure"] : ""
 		};
 		
 		return {
