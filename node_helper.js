@@ -2,18 +2,18 @@ const Log = require("logger");
 const NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
-	async socketNotificationReceived (notification, payload) {
+	async socketNotificationReceived(notification, payload) {
 		if (notification === "WETTERONLINE_REFRESH") {
 			await this.updateWOTrend(payload.city, payload.userAgent);
 		}
 	},
 
-	async updateWOTrend (city, userAgent) {
+	async updateWOTrend(city, userAgent) {
 		let url = `https://www.wetteronline.de/wetter/${city}`;
 		let body = await this.getUrl(url, userAgent);
 		let gid = this.findGid(city, body);
 
-		if(gid) {
+		if (gid) {
 			const WO_DAILY_URL = `https://api-app.wetteronline.de/app/weather/forecast?av=2&mv=13&c=d2ViOmFxcnhwWDR3ZWJDSlRuWeb=&location_id=${gid}&timezone=${process.env.TZ}`;
 			let daily_promise = await this.getUrl(WO_DAILY_URL, userAgent);
 			let dailyData = JSON.parse(await daily_promise);
@@ -23,16 +23,16 @@ module.exports = NodeHelper.create({
 			let hourlyData = JSON.parse(await hourly_promise);
 
 			let event = this.extractEvent(dailyData, hourlyData, body);
-			
+
 			this.getHelper().sendSocketNotification("WETTERONLINE_RESULTS", event);
 		}
 	},
 
-	findGid (city, body) {
+	findGid(city, body) {
 		const exp = /gid : "([^"]+)"/s;
 		const match = body.match(exp);
-	
-		if(match) {
+
+		if (match) {
 			const gid = match[1];
 			Log.debug(`MMM-WetterOnline: The gid of city "${city}" is ${gid}.`)
 			return gid;
@@ -41,14 +41,14 @@ module.exports = NodeHelper.create({
 		}
 	},
 
-	extractSymbolUrl (body) {
+	extractSymbolUrl(body) {
 		const symbolUrlBaseMatcher = body.match(/<base href="([^"]+)" >/);
 		let symbolUrlBase = "https://www.wetteronline.de";
-		if(symbolUrlBaseMatcher && symbolUrlBaseMatcher[1]) {
+		if (symbolUrlBaseMatcher && symbolUrlBaseMatcher[1]) {
 			symbolUrlBase += symbolUrlBaseMatcher[1];
 		}
 		let symbolUrlMatcher = body.match(/<img[^>]+class="symbol"[^>]+src="([^"]+\/)[^"\/]+"/ms);
-		if(symbolUrlMatcher && symbolUrlMatcher[1]) {
+		if (symbolUrlMatcher && symbolUrlMatcher[1]) {
 			return symbolUrlBase + symbolUrlMatcher[1];
 		} else {
 			Log.warn("Could not extract symbol base URL from body, using default.");
@@ -56,14 +56,14 @@ module.exports = NodeHelper.create({
 		}
 	},
 
-	extractEvent (dailyData, hourlyData, body) {
+	extractEvent(dailyData, hourlyData, body) {
 		// extract current temp
 		let currentTempMatch = body.match(/<span[^>]+class="air-temp">\s*(-?\d+)°\s*<\/span>/ms);
 		let currTemp = currentTempMatch ? currentTempMatch[1] : null;
-	
+
 		// extract url patterns
 		let dailiesSymbolUrl = hourliesSymbolUrl = this.extractSymbolUrl(body);
-	
+
 		// generate hourlies
 		let hourlies = [];
 		hourlyData["hours"].forEach(hourlyForecast => {
@@ -73,7 +73,7 @@ module.exports = NodeHelper.create({
 				wind_speed_kmh: hourlyForecast["wind"]["speed"]["kilometer_per_hour"]["value"]
 			});
 		});
-	
+
 		// generate dailies
 		let dailies = [];
 		dailyData.forEach(dailyForecast => {
@@ -83,19 +83,19 @@ module.exports = NodeHelper.create({
 				low: Math.round(dailyForecast["temperature"]["min"]["air"]),
 				pop: Math.round(dailyForecast["precipitation"]["probability"] * 100),
 				// dirty hack - sunrise is usually ON the day (b/c offsets)
-				day_time_label: new Date(dailyForecast["sun"]["rise"]).toLocaleDateString(new Intl.NumberFormat().resolvedOptions().locale, {weekday: "short"})
+				day_time_label: new Date(dailyForecast["sun"]["rise"]).toLocaleDateString(new Intl.NumberFormat().resolvedOptions().locale, { weekday: "short" })
 			});
 		});
-		
+
 		// extract current conditions
 		let currentCondMatch = body.match(/WO\.metadata\.p_city_weather\.nowcastBarMetadata = (\{.+\})$/m);
 		let currentWeatherMatch = body.match(/<span class="gust\s*">\s*(\S+) (\d+) km\/h\s*<\/span>/ms);
 		let currConditions = {
 			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
-			wind_speed_text: currentWeatherMatch ?currentWeatherMatch[1] : "",
+			wind_speed_text: currentWeatherMatch ? currentWeatherMatch[1] : "",
 			wind_speed_kmh: currentWeatherMatch ? currentWeatherMatch[2] : ""
 		};
-		
+
 		return {
 			currentTemp: currTemp,
 			currConditions: currConditions,
@@ -108,12 +108,12 @@ module.exports = NodeHelper.create({
 			debug: currentCondMatch ? currentCondMatch[1] : null
 		};
 	},
-	
-	getHelper () {
+
+	getHelper() {
 		return this;
 	},
 
-	getUrl (myUrl, userAgent) {
+	getUrl(myUrl, userAgent) {
 		return fetch(myUrl, {
 			headers: {
 				"User-Agent": userAgent
@@ -122,10 +122,10 @@ module.exports = NodeHelper.create({
 			.then(response => response.text())
 			.catch(error => {
 				throw new Error(error);
-		});
+			});
 	},
 
-	parseInlineJson (str) {
+	parseInlineJson(str) {
 		return eval?.(`"use strict";(${str})`);
 	}
 });

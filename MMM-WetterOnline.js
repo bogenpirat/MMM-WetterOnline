@@ -18,30 +18,30 @@ Module.register("MMM-WetterOnline", {
 
 	weatherData: {},
 
-	getStyles () {
+	getStyles() {
 		return ["MMM-WetterOnline.css"];
 	},
 
-	getScripts () {
+	getScripts() {
 		return [];
 	},
 
 	requiresVersion: "2.2.0",
 
-	start () {
+	start() {
 		var self = this;
-		var payload = {city: this.config.city, userAgent: this.config.userAgent};
-		setInterval(function() {
-				self.sendSocketNotification("WETTERONLINE_REFRESH", payload); // no speed defined, so it updates instantly.
-			}, this.config.updateIntervalMins * 60 * 1000);
+		var payload = { city: this.config.city, userAgent: this.config.userAgent };
+		setInterval(function () {
+			self.sendSocketNotification("WETTERONLINE_REFRESH", payload); // no speed defined, so it updates instantly.
+		}, this.config.updateIntervalMins * 60 * 1000);
 		self.sendSocketNotification("WETTERONLINE_REFRESH", payload);
 	},
 
-	getDom () {
+	getDom() {
 		var wrapper = document.createElement("div");
 		wrapper.classList.add("small");
 
-		if(Object.keys(this.weatherData).length > 0) {
+		if (Object.keys(this.weatherData).length > 0) {
 			var currentWrapper = document.createElement("div");
 			currentWrapper.classList.add("weather");
 			currentWrapper.insertAdjacentHTML("beforeend", `<span class="logo-container"><img src="${this.weatherData.symbolUrls.hourlies}${this.weatherData.hourlies[0].symbol}.svg" class="blacknwhite" width="64" /> <span class="current-temp">${this.weatherData.currentTemp}&deg;C</span></span>`);
@@ -52,19 +52,19 @@ Module.register("MMM-WetterOnline", {
 
 			wrapper.appendChild(currentWrapper);
 
-			if(parseInt(this.config.daysTrend) > 0) {
+			if (parseInt(this.config.daysTrend) > 0) {
 				wrapper.insertAdjacentHTML("beforeend", "<br />");
 
 				var ft = document.createElement("table");
 
 				var headerHtml = "<tr>";
-				for (let i = 0;	i < this.weatherData.dailies.length && i < this.config.daysTrend; i++) {
+				for (let i = 0; i < this.weatherData.dailies.length && i < this.config.daysTrend; i++) {
 					headerHtml += `<th class="trendcell">${this.weatherData.dailies[i].day_time_label.replace(/ - .*/, "").substring(0, 2)}</th>`;
 				}
 				ft.insertAdjacentHTML("beforeend", `${headerHtml}</tr>`);
 
 				var dailyEntriesHtml = "<tr>";
-				for (let i = 0;	i < this.weatherData.dailies.length && i < this.config.daysTrend; i++) {
+				for (let i = 0; i < this.weatherData.dailies.length && i < this.config.daysTrend; i++) {
 					dailyEntriesHtml += "<td class='trendcell'>";
 					dailyEntriesHtml += `<img src="${this.weatherData.symbolUrls.dailies}${this.weatherData.dailies[i].symbol}.svg" class="blacknwhite" width="32" />`;
 					dailyEntriesHtml += "<br />";
@@ -84,8 +84,8 @@ Module.register("MMM-WetterOnline", {
 		return wrapper;
 	},
 
-	socketNotificationReceived (notification, payload) {
-		if(notification === "WETTERONLINE_RESULTS") {
+	socketNotificationReceived(notification, payload) {
+		if (notification === "WETTERONLINE_RESULTS") {
 			this.weatherData = payload;
 			this.updateDom();
 		}
