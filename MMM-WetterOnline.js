@@ -70,7 +70,7 @@ Module.register("MMM-WetterOnline", {
 					dailyEntriesHtml += "<td class='trendcell'>";
 					dailyEntriesHtml += `<img src="${this.weatherData.symbolUrls.dailies}${this.weatherData.dailies[i].symbol}.svg" class="blacknwhite" width="32" />`;
 					dailyEntriesHtml += "<br />";
-					if(this.config.showSunHours === true) {
+					if (this.config.showSunHours === true) {
 						dailyEntriesHtml += `<span class="logo-container"><img class="legend-logo" src="${this.file("assets/sun-svgrepo-com.svg")}" /> ${this.weatherData.dailies[i].sunhours}</span>`;
 						dailyEntriesHtml += "<br />";
 					}
@@ -78,7 +78,7 @@ Module.register("MMM-WetterOnline", {
 					dailyEntriesHtml += "<br />";
 					dailyEntriesHtml += `<span class="temp-${this.weatherData.dailies[i].low} logo-container"><img class="legend-logo inverted" src="${this.file("assets/low-temperature.svg")}" />${this.weatherData.dailies[i].low}</span>`;
 					dailyEntriesHtml += "<br />";
-					if(
+					if (
 						this.config.showAirPressure === 'hpa' ||
 						this.config.showAirPressure === 'inhg' ||
 						this.config.showAirPressure === 'mmhg'
@@ -99,7 +99,6 @@ Module.register("MMM-WetterOnline", {
 	},
 
 	socketNotificationReceived(notification, payload) {
-		console.log(payload); // TODO: remove
 		if (notification === "WETTERONLINE_RESULTS") {
 			this.weatherData = payload;
 			this.updateDom();

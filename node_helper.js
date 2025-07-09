@@ -101,7 +101,7 @@ module.exports = NodeHelper.create({
 		// extract current conditions
 		let currentCondMatch = body.match(/WO\.metadata\.p_city_weather\.nowcastBarMetadata = (\{.+\})$/m);
 		let currentWeatherMatch = body.match(/<span class="gust\s*">\s*(\S+) (\d+) km\/h\s*<\/span>/ms);
-		
+
 		let currConditions = {
 			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
 			wind_speed_text: currentWeatherMatch ? currentWeatherMatch[1] : "",
