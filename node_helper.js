@@ -41,14 +41,28 @@ module.exports = NodeHelper.create({
 		}
 	},
 
+	extractSymbolUrl (body) {
+		const symbolUrlBaseMatcher = body.match(/<base href="([^"]+)" >/);
+		let symbolUrlBase = "https://www.wetteronline.de";
+		if(symbolUrlBaseMatcher && symbolUrlBaseMatcher[1]) {
+			symbolUrlBase += symbolUrlBaseMatcher[1];
+		}
+		let symbolUrlMatcher = body.match(/<img[^>]+class="symbol"[^>]+src="([^"]+\/)[^"\/]+"/ms);
+		if(symbolUrlMatcher && symbolUrlMatcher[1]) {
+			return symbolUrlBase + symbolUrlMatcher[1];
+		} else {
+			Log.warn("Could not extract symbol base URL from body, using default.");
+			return "https://www.wetteronline.de/www-m3-ng-assets/assets/weather-symbol/";
+		}
+	},
+
 	extractEvent (dailyData, hourlyData, body) {
 		// extract current temp
 		let currentTempMatch = body.match(/<div id="nowcast-card-temperature"[^>]*>.*?<div class="value">(-?\d+)<\/div>/ms);
 		let currTemp = currentTempMatch ? currentTempMatch[1] : null;
 	
 		// extract url patterns
-		let symbolUrlMatch = body.match(/<span class="daylabel">[^<]*<\/span>\s*<img src="([^"]+)\/[^/]+"/ms);
-		let dailiesSymbolUrl = hourliesSymbolUrl = symbolUrlMatch ? `${symbolUrlMatch[1]}/` : null;
+		let dailiesSymbolUrl = hourliesSymbolUrl = this.extractSymbolUrl(body);
 	
 		// generate hourlies
 		let hourlies = [];
