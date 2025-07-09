@@ -34,7 +34,7 @@ module.exports = NodeHelper.create({
 	
 		if(match) {
 			const gid = match[1];
-			Log.info(`MMM-WetterOnline: The gid of city "${city}" is ${gid}.`)
+			Log.debug(`MMM-WetterOnline: The gid of city "${city}" is ${gid}.`)
 			return gid;
 		} else {
 			Log.error(`MMM-WetterOnline: The gid of city "${city}" could not be extracted.`);
