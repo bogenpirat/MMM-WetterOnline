@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
 
 	extractEvent (dailyData, hourlyData, body) {
 		// extract current temp
-		let currentTempMatch = body.match(/<div id="nowcast-card-temperature"[^>]*>.*?<div class="value">(-?\d+)<\/div>/ms);
+		let currentTempMatch = body.match(/<span[^>]+class="air-temp">\s*(-?\d+)°\s*<\/span>/ms);
 		let currTemp = currentTempMatch ? currentTempMatch[1] : null;
 	
 		// extract url patterns
@@ -89,11 +89,11 @@ module.exports = NodeHelper.create({
 		
 		// extract current conditions
 		let currentCondMatch = body.match(/WO\.metadata\.p_city_weather\.nowcastBarMetadata = (\{.+\})$/m);
-		let firstHourlyMatch = body.match(/hourlyForecastElements\.push\((\{[^}]+\})/ms);
+		let currentWeatherMatch = body.match(/<span class="gust\s*">\s*(\S+) (\d+) km\/h\s*<\/span>/ms);
 		let currConditions = {
 			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
-			wind_speed_text: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedText"] : "",
-			wind_speed_kmh: firstHourlyMatch ? this.parseInlineJson(firstHourlyMatch[1])["windSpeedKmh"] : ""
+			wind_speed_text: currentWeatherMatch ?currentWeatherMatch[1] : "",
+			wind_speed_kmh: currentWeatherMatch ? currentWeatherMatch[2] : ""
 		};
 		
 		return {
