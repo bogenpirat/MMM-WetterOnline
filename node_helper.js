@@ -70,7 +70,12 @@ module.exports = NodeHelper.create({
 			hourlies.push({
 				symbol: hourlyForecast["symbol"],
 				temperature: Math.round(hourlyForecast["temperature"]["air"]),
-				wind_speed_kmh: hourlyForecast["wind"]["speed"]["kilometer_per_hour"]["value"]
+				wind_speed_kmh: hourlyForecast["wind"]["speed"]["kilometer_per_hour"]["value"],
+				air_pressure: {
+					hpa: Math.round(hourlyForecast["air_pressure"]["hpa"]),
+					inhg: (hourlyForecast["air_pressure"]["inhg"]).toFixed(2),
+					mmhg: Math.round(hourlyForecast["air_pressure"]["mmhg"])
+				}
 			});
 		});
 
@@ -83,17 +88,25 @@ module.exports = NodeHelper.create({
 				low: Math.round(dailyForecast["temperature"]["min"]["air"]),
 				pop: Math.round(dailyForecast["precipitation"]["probability"] * 100),
 				// dirty hack - sunrise is usually ON the day (b/c offsets)
-				day_time_label: new Date(dailyForecast["sun"]["rise"]).toLocaleDateString(new Intl.NumberFormat().resolvedOptions().locale, { weekday: "short" })
+				day_time_label: new Date(dailyForecast["sun"]["rise"]).toLocaleDateString(new Intl.NumberFormat().resolvedOptions().locale, { weekday: "short" }),
+				sunhours: Math.round(dailyForecast["sun"]["duration"]["absolute"]),
+				air_pressure: {
+					hpa: Math.round(dailyForecast["air_pressure"]["hpa"]),
+					inhg: (dailyForecast["air_pressure"]["inhg"]).toFixed(2),
+					mmhg: Math.round(dailyForecast["air_pressure"]["mmhg"])
+				}
 			});
 		});
 
 		// extract current conditions
 		let currentCondMatch = body.match(/WO\.metadata\.p_city_weather\.nowcastBarMetadata = (\{.+\})$/m);
 		let currentWeatherMatch = body.match(/<span class="gust\s*">\s*(\S+) (\d+) km\/h\s*<\/span>/ms);
+		
 		let currConditions = {
 			symbol_text: currentCondMatch ? JSON.parse(currentCondMatch[1])["nowcastBar"][0]["text"] : "",
 			wind_speed_text: currentWeatherMatch ? currentWeatherMatch[1] : "",
-			wind_speed_kmh: currentWeatherMatch ? currentWeatherMatch[2] : ""
+			wind_speed_kmh: currentWeatherMatch ? currentWeatherMatch[2] : "",
+			air_pressure: hourlyData["hours"][0]["air_pressure"]
 		};
 
 		return {
