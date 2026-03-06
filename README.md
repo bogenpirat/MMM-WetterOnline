@@ -68,6 +68,7 @@ All options are optional so the module works out of the box.
 | `userAgent`            | User-Agent to use for requests to the site. Mobile UAs will not work.<br><br>**Type:** `String`<br>**Default:** see [MMM-WetterOnline.js](MMM-WetterOnline.js)
 | `showSunHours`         | Shows the absolute duration of sunshine during the day.<br><br>**Type:** `Boolean`<br>**Default:** `false`
 | `showAirPressure`      | Shows the air pressure on this day.<br><br>**Type:** `String`<br>**Default:** `null`<br>**Options:** `(null, hpa, inhg, mmhg)`
+| `hideCurrentConditions`| Hides the current conditions (and only displays forecast)
 
 ## Developer notes
 

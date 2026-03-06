@@ -15,7 +15,8 @@ Module.register("MMM-WetterOnline", {
 		updateIntervalMins: 5,
 		userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
 		showSunHours: false,
-		showAirPressure: null
+		showAirPressure: null,
+		hideCurrentConditions: false
 	},
 
 	weatherData: {},
@@ -34,7 +35,7 @@ Module.register("MMM-WetterOnline", {
 		var self = this;
 		var payload = { city: this.config.city, userAgent: this.config.userAgent };
 		setInterval(function () {
-			self.sendSocketNotification("WETTERONLINE_REFRESH", payload); // no speed defined, so it updates instantly.
+			self.sendSocketNotification("WETTERONLINE_REFRESH", payload);
 		}, this.config.updateIntervalMins * 60 * 1000);
 		self.sendSocketNotification("WETTERONLINE_REFRESH", payload);
 	},
@@ -44,18 +45,28 @@ Module.register("MMM-WetterOnline", {
 		wrapper.classList.add("small");
 
 		if (Object.keys(this.weatherData).length > 0) {
-			var currentWrapper = document.createElement("div");
-			currentWrapper.classList.add("weather");
-			currentWrapper.insertAdjacentHTML("beforeend", `<span class="logo-container"><img src="${this.weatherData.symbolUrls.hourlies}${this.weatherData.hourlies[0].symbol}.svg" class="blacknwhite" width="64" /> <span class="current-temp">${this.weatherData.currentTemp}&deg;C</span></span>`);
-			currentWrapper.insertAdjacentHTML("beforeend", "<br />");
-			currentWrapper.insertAdjacentHTML("beforeend", this.weatherData.currConditions.symbol_text);
-			currentWrapper.insertAdjacentHTML("beforeend", "<br />");
-			currentWrapper.insertAdjacentHTML("beforeend", `${this.weatherData.currConditions.wind_speed_text}, ${this.weatherData.currConditions.wind_speed_kmh}km/h`);
+			if (!this.isHideCurrentConditions()) {
+				var currentWrapper = document.createElement("div");
+				currentWrapper.classList.add("weather");
+				currentWrapper.insertAdjacentHTML(
+					"beforeend",
+					`<span class="logo-container"><img src="${this.weatherData.symbolUrls.hourlies}${this.weatherData.hourlies[0].symbol}.svg" class="blacknwhite" width="64" /> <span class="current-temp">${this.weatherData.currentTemp}&deg;C</span></span>`
+				);
+				currentWrapper.insertAdjacentHTML("beforeend", "<br />");
+				currentWrapper.insertAdjacentHTML("beforeend", this.weatherData.currConditions.symbol_text);
+				currentWrapper.insertAdjacentHTML("beforeend", "<br />");
+				currentWrapper.insertAdjacentHTML(
+					"beforeend",
+					`${this.weatherData.currConditions.wind_speed_text}, ${this.weatherData.currConditions.wind_speed_kmh}km/h`
+				);
 
-			wrapper.appendChild(currentWrapper);
+				wrapper.appendChild(currentWrapper);
+			}
 
 			if (parseInt(this.config.daysTrend) > 0) {
-				wrapper.insertAdjacentHTML("beforeend", "<br />");
+				if (!this.isHideCurrentConditions()) {
+					wrapper.insertAdjacentHTML("beforeend", "<br />");
+				}
 
 				var ft = document.createElement("table");
 
@@ -94,7 +105,6 @@ Module.register("MMM-WetterOnline", {
 				wrapper.appendChild(ft);
 			}
 		}
-
 		return wrapper;
 	},
 
@@ -103,5 +113,9 @@ Module.register("MMM-WetterOnline", {
 			this.weatherData = payload;
 			this.updateDom();
 		}
+	},
+
+	isHideCurrentConditions() {
+		return this.config.hideCurrentConditions === true;
 	}
 });
