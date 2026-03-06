@@ -45,7 +45,7 @@ Module.register("MMM-WetterOnline", {
 		wrapper.classList.add("small");
 
 		if (Object.keys(this.weatherData).length > 0) {
-			if (!isHideCurrentConditions()) {
+			if (!this.isHideCurrentConditions()) {
 				var currentWrapper = document.createElement("div");
 				currentWrapper.classList.add("weather");
 				currentWrapper.insertAdjacentHTML(
@@ -64,7 +64,7 @@ Module.register("MMM-WetterOnline", {
 			}
 
 			if (parseInt(this.config.daysTrend) > 0) {
-				if (!isHideCurrentConditions()) {
+				if (!this.isHideCurrentConditions()) {
 					wrapper.insertAdjacentHTML("beforeend", "<br />");
 				}
 
